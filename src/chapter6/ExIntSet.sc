@@ -6,6 +6,8 @@ object ExIntSet {
     def contains(x: Int): Boolean // Is x in the set?
     def union(other: IntSet): IntSet // Union of the set and another one
     def intersection(other: IntSet): IntSet // Intersection of the set and another one
+    def isEmpty: Boolean // Tell if the set is empty
+    def excl(x: Int): IntSet // Get a new set without the given element
   }
 
   class EmptySet extends IntSet {
@@ -13,9 +15,12 @@ object ExIntSet {
     def incl(x: Int): IntSet = new NonEmptySet(x, new EmptySet, new EmptySet)
     def union(other: IntSet): IntSet = other
     def intersection(other: IntSet): IntSet = this
+    def isEmpty: Boolean = true
+    def excl(x: Int): IntSet = this
   }
 
   class NonEmptySet(elem: Int, left: IntSet, right: IntSet) extends IntSet {
+    def isEmpty = false
     def contains(x: Int): Boolean =
       if (x < elem) left contains x
       else if (x > elem) right contains x
@@ -29,11 +34,13 @@ object ExIntSet {
     def union(other: IntSet): IntSet = ((left union right) union other) incl elem
     def intersection(other: IntSet): IntSet = {
       val newSet = (right intersection other) union (left intersection other)
-      // The elem was already here, return the set
-      if (newSet contains elem) newSet
-      // Otherwise add the current elem
-      else newSet incl elem
+    	if (other contains elem) newSet incl elem
+    	else newSet
     }
+
+    def excl(x: Int): IntSet =
+    	if (elem == x) left union right
+    	else (left excl x) union (right excl x) incl elem
   }
 
   // Arrange
@@ -49,4 +56,13 @@ object ExIntSet {
   val oneIntersection = one intersection oneTwo
   assert(oneIntersection contains 1)
   assert(!(oneIntersection contains 2))
+
+  val a = (new EmptySet) incl 1 incl 2 incl 3
+  val b = (new EmptySet) incl 4 incl 5
+  assert((a intersection b).isEmpty)
+
+  // Test exclusion
+  assert(oneTwo excl 2 contains 1)
+  assert(!(oneTwo excl 2 contains 2))
+  assert(oneTwo excl 2 excl 1 isEmpty)
 }
