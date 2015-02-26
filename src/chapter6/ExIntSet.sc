@@ -34,13 +34,14 @@ object ExIntSet {
     def union(other: IntSet): IntSet = ((left union right) union other) incl elem
     def intersection(other: IntSet): IntSet = {
       val newSet = (right intersection other) union (left intersection other)
-    	if (other contains elem) newSet incl elem
-    	else newSet
+      if (other contains elem) newSet incl elem
+      else newSet
     }
 
     def excl(x: Int): IntSet =
-    	if (elem == x) left union right
-    	else (left excl x) union (right excl x) incl elem
+      if (elem == x) left union right
+      else if (elem < x) (left excl x) union right incl elem
+      else left union (right excl x) incl elem
   }
 
   // Arrange
